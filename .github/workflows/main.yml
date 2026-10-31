@@ -15,11 +15,17 @@ jobs:
       - name: Check Xcode
         run: xcodebuild -version
 
+      - name: List project schemes
+        run: |
+          xcodebuild \
+            -project Full_Source_Decomple/ThreeOneOSFive.xcodeproj \
+            -list
+
       - name: Build Mew Proxy
         run: |
           xcodebuild \
             -project Full_Source_Decomple/ThreeOneOSFive.xcodeproj \
-            -target 3105 \
+            -scheme 3105 \
             -configuration Release \
             -sdk iphoneos \
             -destination 'generic/platform=iOS' \
