@@ -1,0 +1,49 @@
+
+name: Build Mew Proxy IPA
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: macos-15
+
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v4
+
+      - name: Check Xcode
+        run: xcodebuild -version
+
+      - name: Build Mew Proxy
+        run: |
+          xcodebuild \
+            -project Full_Source_Decomple/ThreeOneOSFive.xcodeproj \
+            -target 3105 \
+            -configuration Release \
+            -sdk iphoneos \
+            -destination 'generic/platform=iOS' \
+            -archivePath "$GITHUB_WORKSPACE/MewProxy.xcarchive" \
+            CODE_SIGNING_ALLOWED=NO \
+            archive
+
+      - name: Package IPA
+        run: |
+          mkdir -p Payload
+
+          APP=$(find MewProxy.xcarchive/Products/Applications \
+            -maxdepth 1 -name '*.app' -print -quit)
+
+          if [ -z "$APP" ]; then
+            echo "App not found"
+            exit 1
+          fi
+
+          cp -R "$APP" Payload/
+          zip -r MewProxy.ipa Payload
+
+      - name: Upload IPA
+        uses: actions/upload-artifact@v4
+        with:
+          name: MewProxy-IPA
+          path: MewProxy.ipa
